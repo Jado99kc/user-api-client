@@ -7,7 +7,7 @@
             <h1 class="title">Register</h1>
           </div>
           <form @submit.prevent="handleRegister">
-            <RegisterForm :user-data="userData"/>
+            <RegisterForm :view="true" :user-data="userData" btn-name="Register" :disable-fields="false" :original="true"/>
           </form>
         </div>
       </div>
@@ -38,7 +38,15 @@ export default {
   methods: {
     ...mapActions(['register']),
     handleRegister() {
-      this.register(this.userData)
+      const user = {
+        name: this.userData.name,
+        email: this.userData.email,
+        password: this.userData.pass1,
+        telefono: this.userData.telefono,
+        area: this.userData.area,
+        puesto:this.userData.puesto
+      }
+      this.register(user)
       this.userData = {
         name: '',
         email: '',

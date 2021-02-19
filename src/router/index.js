@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
-
+import store from '../store'
 Vue.use(VueRouter)
 
 const routes = [
@@ -28,7 +28,8 @@ const routes = [
   {
     path: '/admin/dashboard',
     name: 'adminDashboard',
-    component: () => import(/* webpackChunkName: "about" */ '../views/admin/Dashboard.vue')
+    component: () => import(/* webpackChunkName: "about" */ '../views/admin/Dashboard.vue'),
+    meta: {protectedRoute: true}
   },
 ]
 
@@ -37,5 +38,15 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes
 })
-
+router.beforeEach((to,from,next)=>{
+  if(to.meta.protectedRoute){
+    if(store.getters.userIsAdmin && store.getters.userIsAuthenticated){
+      next()
+    }else{
+      next('/')
+    }
+  }else{
+    next()
+  }
+})
 export default router

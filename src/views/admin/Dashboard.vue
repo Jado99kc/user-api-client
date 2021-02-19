@@ -12,6 +12,7 @@
 
 <script>
 import UsersTable from "../../components/UsersTable";
+import {mapActions, mapState} from "vuex";
 export default {
   name: "Dashboard",
   components:{
@@ -19,22 +20,20 @@ export default {
   },
   data(){
     return{
-      users:[
-        {
-          "id": 1,
-          "name": "Jahdiel castaneda",
-          "email": "jado99kc@gmail.com",
-          "email_verified_at": null,
-          "telefono": "9831928383",
-          "area": "Administracion",
-          "puesto": "Administrador de Empresa",
-          "role_id": 1,
-          "created_at": "2021-02-17",
-          "updated_at": "2021-02-17"
-        }
-      ]
+
     }
   },
+
+  methods:{
+    ...mapActions(['fetchUsers'])
+  },
+  computed:{
+    ...mapState(['users'])
+  },
+  mounted() {
+    this.fetchUsers()
+  },
+
 
 }
 </script>

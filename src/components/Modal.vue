@@ -1,6 +1,6 @@
 <template>
   <div class="modal" :class="{'is-active': this.isActive}">
-    <div class="modal-background"></div>
+    <div @click="$emit('close')" class="modal-background"></div>
     <div class="modal-content">
       <slot></slot>
     </div>

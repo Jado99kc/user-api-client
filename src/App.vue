@@ -18,7 +18,7 @@ export default {
   created() {
     this.verifyLogin()
   },
-  mounted() {
+  async mounted() {
     this.verifyLogin()
   }
 }

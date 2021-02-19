@@ -11,6 +11,7 @@ export default new Vuex.Store({
     pagination:null
   },
   mutations: {
+
     set_token(state, payload){
       state.token =  payload
     },
@@ -26,21 +27,46 @@ export default new Vuex.Store({
     add_user(state, payload) {
       state.users.push(payload)
     },
-    edit_user(state, payload) {
-      if (!state.users.find(x => x.id === payload)) {
-        router.push('/admin/dashboard')
-      }
-      state.post = state.users.find(x => x.id === payload)
-    },
     update_user(state, payload) {
       state.users = state.users.map(x => x.id === payload.id ? payload : x)
-      router.push('/posts')
+      // router.push('/posts')
     },
     delete_user(state, payload) {
       state.users = state.users.filter(x => x.id !== payload);
     }
   },
+
   actions: {
+    async fetchUsers({commit, state}){
+      try {
+        const dataDb =  await fetch(`${defaultURL}/users/index`,{
+          headers:{
+            'Authorization': 'Bearer' + state.token
+          }
+        })
+        const userArray = await dataDb.json()
+        console.log(userArray.data)
+        await commit('set_users', userArray.data)
+        await commit('set_pagination', userArray)
+      }catch (e){
+        console.log(e)
+      }
+    },
+    async paginationChange({commit, state}, page){
+      try {
+        const dataDb =  await fetch(`${defaultURL}/users/index?page=${page}`,{
+          headers:{
+            'Authorization': 'Bearer' + state.token
+          }
+        })
+        const userArray = await dataDb.json()
+        console.log(userArray.data)
+        await commit('set_users', userArray.data)
+        await commit('set_pagination', userArray)
+      }catch (e){
+        console.log(e)
+      }
+    },
     verifyLogin({commit}){
       if(localStorage.getItem('user') && localStorage.getItem('token')){
         commit('set_user', JSON.parse(localStorage.getItem('user')))
@@ -57,6 +83,7 @@ export default new Vuex.Store({
             method: 'post',
             headers: {
               'Content-Type': 'application/json',
+              'Accept': 'application/json',
             },
             body: JSON.stringify(formData)
           })
@@ -73,6 +100,7 @@ export default new Vuex.Store({
       }
     },
     async signIn({commit, dispatch, getters}, formData) {
+      console.log(formData)
       try {
         const dataAuth = await fetch(`${defaultURL}/auth/login`, {
           method: 'post',
@@ -121,12 +149,13 @@ export default new Vuex.Store({
         console.log(e)
       }
     },
-    async addUser({commit}){
+    async addUser({commit}, formData){
       try {
         const dataAuth =  await fetch(`${defaultURL}/auth/register`,{
           method: 'post',
           headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json'
           },
           body: JSON.stringify(formData)
         })
@@ -136,6 +165,48 @@ export default new Vuex.Store({
           return 'Error Creating User'
         }else{
           commit('add_user', response)
+        }
+      }catch(e){
+        console.log(e)
+      }
+    },
+    async updateUser({commit,state}, formData){
+      try {
+        const dataAuth =  await fetch(`${defaultURL}/users/update/${formData.id}`,{
+          method: 'post',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': 'Bearer' + state.token
+          },
+          body: JSON.stringify(formData)
+        })
+        const response = await dataAuth.json()
+        console.log(response.status)
+        if(response == null){
+          return 'Error Updating User'
+        }else{
+          commit('update_user', formData)
+        }
+      }catch(e){
+        console.log(e)
+      }
+    },
+    async deleteUser({commit, state}, id){
+      try {
+        const deletedUser =  await fetch(`${defaultURL}/users/destroy/${id}`,{
+          method: 'post',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': 'Bearer' + state.token
+          },
+        })
+        const response = await deletedUser.json()
+        if(response == null){
+          return 'Error Deleting User'
+        }else{
+          commit('delete_user', id)
         }
       }catch(e){
         console.log(e)
